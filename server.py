@@ -13,6 +13,10 @@ def handle_admission(request):
     }
     return response
 
+@app.route("/test", methods=["GET"])
+def test():
+    return "Yo this a test"
+
 @app.route("/", methods=["POST"])
 def admission_handler():
     try:
@@ -23,4 +27,4 @@ def admission_handler():
         return jsonify({"error": str(err)}), 500
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=443, ssl_context=("/ssl/tls.crt", "ssl/tls.key"))
+    app.run(host="0.0.0.0", port=443, ssl_context=("ssl/tls.crt", "ssl/tls.key"))
