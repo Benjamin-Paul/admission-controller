@@ -12,11 +12,10 @@ app = Flask(__name__)
 
 @app.route("/validate", methods=["POST"])
 def validate():
-    allowed = True
+    allowed = False
     try:
-        for container_spec in request.json["request"]["object"]["spec"]["containers"]:
-            if "image" in container_spec:
-                allowed = False
+        if "kubernetes.io/change-cause" in request.json["request"]["object"]["metadata"]["annotations"]:
+            allowed = True
     except KeyError:
         pass
     return jsonify(
