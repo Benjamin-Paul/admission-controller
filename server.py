@@ -13,33 +13,16 @@ app = Flask(__name__)
 @app.route("/validate", methods=["POST"])
 def validate():
     allowed = True
+    message = ""
     try:
         if "kubernetes.io/change-cause" not in request.json["request"]["object"]["metadata"]["annotations"]:
             allowed = False
-            return jsonify(
-                {
-                    "apiVersion": "admission.k8s.io/v1",
-                    "kind": "AdmissionReview",
-                    "response": {
-                        "allowed": allowed,
-                        "uid": request.json["request"]["uid"],
-                        "status": {"message": "kubernetes.io/change-cause is mandatory for deployments in this namespace."},
-                    }
-                }
-            )
+            message = "kubernetes.io/change-cause is mandatory for deployments in this namespace."
+        elif "kubernetes.io/change-cause" not in request.jsonjson["request"]["object"]["metadata"]["annotations"]["kubectl.kubernetes.io/last-applied-configuration"]["metadata"]["annotations"]:
+            message = "Ok. First change-cause provided."
         elif request.json["request"]["object"]["metadata"]["annotations"]["kubectl.kubernetes.io/last-applied-configuration"]["metadata"]["annotations"]["kubernetes.io/change-cause"] == request.json["request"]["object"]["metadata"]["annotations"]["kubernetes.io/change-cause"]:
             allowed = False
-            return jsonify(
-                {
-                    "apiVersion": "admission.k8s.io/v1",
-                    "kind": "AdmissionReview",
-                    "response": {
-                        "allowed": allowed,
-                        "uid": request.json["request"]["uid"],
-                        "status": {"message": "kubernetes.io/change-cause unchanged. You must modify it."}
-                    }
-                }
-            )
+            message = "kubernetes.io/change-cause unchanged. You must modify it."
     except KeyError:
         pass
     return jsonify(
@@ -49,7 +32,7 @@ def validate():
             "response": {
                 "allowed": allowed,
                 "uid": request.json["request"]["uid"],
-                "status": {"message": "container images are prohibited. That sucks, eh ?"},
+                "status": {"message": message},
             }
         }
     )
