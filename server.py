@@ -26,6 +26,7 @@ def validate():
                         "status": {"message": "kubernetes.io/change-cause is mandatory for deployments in this namespace."},
                     }
                 }
+            )
         elif request.json["request"]["object"]["metadata"]["annotations"]["kubectl.kubernetes.io/last-applied-configuration"]["metadata"]["annotations"]["kubernetes.io/change-cause"] == request.json["request"]["object"]["metadata"]["annotations"]["kubernetes.io/change-cause"]:
             allowed = False
             return jsonify(
@@ -38,6 +39,7 @@ def validate():
                         "status": {"message": "kubernetes.io/change-cause unchanged. You must modify it."}
                     }
                 }
+            )
     except KeyError:
         pass
     return jsonify(
