@@ -1,3 +1,6 @@
 ssl/
 tls.cert
 tls.key
+
+__pycache__/
+.venv/
