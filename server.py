@@ -18,13 +18,14 @@ def validate():
         if "kubernetes.io/change-cause" not in request.json["request"]["object"]["metadata"]["annotations"]:
             allowed = False
             message = "kubernetes.io/change-cause is mandatory for deployments in this namespace."
-        elif "kubernetes.io/change-cause" not in request.jsonjson["request"]["object"]["metadata"]["annotations"]["kubectl.kubernetes.io/last-applied-configuration"]["metadata"]["annotations"]:
+        elif request.json["request"]["oldObject"] is None:
             message = "Ok. First change-cause provided."
-        elif request.json["request"]["object"]["metadata"]["annotations"]["kubectl.kubernetes.io/last-applied-configuration"]["metadata"]["annotations"]["kubernetes.io/change-cause"] == request.json["request"]["object"]["metadata"]["annotations"]["kubernetes.io/change-cause"]:
+        elif request.json["request"]["oldObject"]["metadata"]["annotations"]["kubernetes.io/change-cause"] == request.json["request"]["object"]["metadata"]["annotations"]["kubernetes.io/change-cause"]:
             allowed = False
             message = "kubernetes.io/change-cause unchanged. You must modify it."
     except KeyError:
-        pass
+        allowed = False
+        message = "Inernal error. Reach out to the developper : https://github.com/Benjamin-Paul"
     return jsonify(
         {
             "apiVersion": "admission.k8s.io/v1",
