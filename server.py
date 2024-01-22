@@ -25,7 +25,7 @@ def validate():
             message = "kubernetes.io/change-cause unchanged. You must modify it."
     except KeyError:
         allowed = False
-        message = "Inernal error. Reach out to the developper : https://github.com/Benjamin-Paul"
+        message = "Internal error. Reach out to the developper : https://github.com/Benjamin-Paul"
     return jsonify(
         {
             "apiVersion": "admission.k8s.io/v1",
