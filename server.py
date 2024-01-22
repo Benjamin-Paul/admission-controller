@@ -1,30 +1,64 @@
-from flask import Flask, request, jsonify
+import base64
+import copy
+import http
 import json
+import random
+
+import jsonpatch
+from flask import Flask, jsonify, request
 
 app = Flask(__name__)
 
-def handle_admission(request):
-    response = {
-        "allowed": False,
-        "status": {
-            "reason": "ChangeCauseNotModified",
-            "message": "The kubernetes.io/change-cause field must be modified.",
-        },
-    }
-    return response
 
-@app.route("/test", methods=["GET"])
-def test():
-    return "Yo this a test"
-
-@app.route("/", methods=["POST"])
-def admission_handler():
+@app.route("/validate", methods=["POST"])
+def validate():
+    allowed = True
     try:
-        admission_review = request.json
-        admission_review["response"] = handle_admission(admission_review["request"])
-        return jsonify(admission_review)
-    except Exception as err:
-        return jsonify({"error": str(err)}), 500
+        for container_spec in request.json["request"]["object"]["spec"]["containers"]:
+            if "image" in container_spec:
+                allowed = False
+    except KeyError:
+        pass
+    return jsonify(
+        {
+            "response": {
+                "allowed": allowed,
+                "uid": request.json["request"]["uid"],
+                "status": {"message": "container images are prohibited. That sucks, eh ?"},
+            }
+        }
+    )
+
+# Mutating admission controller example
+'''
+@app.route("/mutate", methods=["POST"])
+def mutate():
+    spec = request.json["request"]["object"]
+    modified_spec = copy.deepcopy(spec)
+
+    try:
+        modified_spec["metadata"]["labels"]["example.com/new-label"] = str(
+            random.randint(1, 1000)
+        )
+    except KeyError:
+        pass
+    patch = jsonpatch.JsonPatch.from_diff(spec, modified_spec)
+    return jsonify(
+        {
+            "response": {
+                "allowed": True,
+                "uid": request.json["request"]["uid"],
+                "patch": base64.b64encode(str(patch).encode()).decode(),
+                "patchtype": "JSONPatch",
+            }
+        }
+    )
+'''
+
+@app.route("/health", methods=["GET"])
+def health():
+    return ("", http.HTTPStatus.NO_CONTENT)
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=443, ssl_context=("ssl/tls.crt", "ssl/tls.key"))
