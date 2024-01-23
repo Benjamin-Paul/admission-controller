@@ -1,5 +1,5 @@
 ## Custom admission controller scope
-This is a small admission controller for Kubernetes. The webhook server, written in Python, will proxy any request to the Kubernetes API that satisfy the following conditions : 
+This is a small admission controller for Kubernetes. The webhook server, written in Python, will proxy any request to the Kubernetes API that satisfies the following conditions : 
 - It is a CREATE or UPDATE request
 - The object of the request is a DEPLOYMENT
 - The request is not made in system or monitoring related namespaces
