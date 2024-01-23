@@ -1,31 +1,41 @@
-import base64
-import copy
+# import base64
+# import copy
+# import json
+# import random
 import http
-import json
-import random
 
-import jsonpatch
+# import jsonpatch
 from flask import Flask, jsonify, request
 
+# Initialize Flask app
 app = Flask(__name__)
-
 
 @app.route("/validate", methods=["POST"])
 def validate():
+    """Validate the request."""
     allowed = True
     message = ""
+
     try:
-        if "kubernetes.io/change-cause" not in request.json["request"]["object"]["metadata"]["annotations"]:
+        annotations = request.json["request"]["object"]["metadata"]["annotations"]
+        old_annotations = request.json["request"]["oldObject"]["metadata"]["annotations"]
+
+        # Check if "kubernetes.io/change-cause" is in annotations
+        if "kubernetes.io/change-cause" not in annotations:
             allowed = False
-            message = "kubernetes.io/change-cause is mandatory for deployments in this namespace."
+            message = "kubernetes.io/change-cause is mandatory for deployments in this namespace. See internal documentation."
+        # Check if oldObject is None
         elif request.json["request"]["oldObject"] is None:
             message = "Ok. First change-cause provided."
-        elif request.json["request"]["oldObject"]["metadata"]["annotations"]["kubernetes.io/change-cause"] == request.json["request"]["object"]["metadata"]["annotations"]["kubernetes.io/change-cause"]:
+        # Check if "kubernetes.io/change-cause" is unchanged
+        elif old_annotations["kubernetes.io/change-cause"] == annotations["kubernetes.io/change-cause"]:
             allowed = False
             message = "kubernetes.io/change-cause unchanged. You must modify it."
     except KeyError:
         allowed = False
-        message = "Internal error. Reach out to the developper for further help : https://github.com/Benjamin-Paul"
+        message = "Internal error. Reach out to the developer for further help : https://github.com/Benjamin-Paul"
+
+    # Return response
     return jsonify(
         {
             "apiVersion": "admission.k8s.io/v1",
