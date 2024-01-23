@@ -8,9 +8,7 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python 3.8
@@ -32,3 +30,25 @@ jobs:
       run: |
         docker build -t benooou/admission-controller:latest .
         docker push benooou/admission-controller:latest
+
+  slack-workflow-status:
+    if: always()
+    name: Post Workflow Status To Slack
+    needs:
+      - build
+    runs-on: ubuntu-latest
+    # actions.read permission is required.
+    permissions:
+      actions: 'read'
+    steps:
+      - name: Slack Workflow Notification
+        uses: Gamesight/slack-workflow-status@v1.2.0
+        with:
+          # Required Input
+          repo_token: ${{secrets.GITHUB_TOKEN}}
+          slack_webhook_url: ${{secrets.SLACK_WEBHOOK_URL}}
+          # Optional Input
+          channel: '#ci-pipelines'
+          name: 'Admission controller bot'
+          icon_emoji: ':fox:'
+          icon_url: 'https://avatars0.githubusercontent.com/u/9837?s=96&v=4'
