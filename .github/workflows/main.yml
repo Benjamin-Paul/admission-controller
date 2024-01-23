@@ -50,5 +50,3 @@ jobs:
           # Optional Input
           channel: '#ci-pipelines'
           name: 'Admission controller bot'
-          icon_emoji: ':fox:'
-          icon_url: 'https://avatars0.githubusercontent.com/u/9837?s=96&v=4'
