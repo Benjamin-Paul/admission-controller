@@ -1,4 +1,4 @@
-name: Python application test with Unittest
+name: Test admission controller and push to DockerHub
 
 on:
   push:
