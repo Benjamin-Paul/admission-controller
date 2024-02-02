@@ -77,4 +77,4 @@ def health():
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
-    app.run(host="0.0.0.0", port=443, ssl_context=("ssl/tls.crt", "ssl/tls.key"))
+    app.run(host="0.0.0.0", port=4444, ssl_context=("ssl/tls.crt", "ssl/tls.key"))
