@@ -1,4 +1,5 @@
 import http
+import logging
 # import base64
 # import copy
 # import json
@@ -12,6 +13,8 @@ app = Flask(__name__)
 
 @app.route("/validate", methods=["POST"])
 def validate():
+    app.logger.info('Validation request received')
+
     allowed = True
     message = ""
     try:
@@ -26,6 +29,9 @@ def validate():
     except KeyError:
         allowed = False
         message = "Inernal error. Reach out to the developper : https://github.com/Benjamin-Paul"
+
+    app.logger.info('Validation request processed')
+
     return jsonify(
         {
             "apiVersion": "admission.k8s.io/v1",
@@ -70,4 +76,5 @@ def health():
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
     app.run(host="0.0.0.0", port=443, ssl_context=("ssl/tls.crt", "ssl/tls.key"))
